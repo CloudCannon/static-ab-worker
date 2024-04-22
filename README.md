@@ -78,3 +78,52 @@ The `data-ab-reference` and `data-ab-variation` attributes must always be paired
   - This means you can use the same `data-ab-define` and `data-ab-ratio` attributes on multiple pages across the site, and users will be assigned the same variation.
 - Whether to put subsequent variations inside `<template>` elements is entirely situation-dependent.
   - Only one element will make it through the proxy in any case, so this choice only affects whether multiple variations are visible when live editing, and on a staging or testing domain without the worker running.
+
+## Deployment
+
+- Configure your `account_id` in the `wrangler.toml` file to match your Cloudflare account.
+- Update the `routes` configuration to match your staging and production environments.
+
+To deploy manually, use wrangler:
+
+```bash
+# Deploy to staging:
+npx wrangler deploy
+
+# Deploy to production:
+npx wrangler deploy --env production
+```
+
+To deploy using a GitHub Action, follow the sample yml configuration:
+
+```yml
+name: Deploy static AB worker
+
+on:
+  push:
+    branches: ["main"]
+    # or, trigger using a production branch:
+    # branches: ["production"]
+
+concurrency:
+  group: ab_worker_deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy worker
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          # Configure with https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # Uncomment the line below for an action that deploys to production
+          # environment: production
+```
