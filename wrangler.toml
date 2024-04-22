@@ -1,0 +1,9 @@
+name = "static-ab-worker-staging"
+main = "src/index.ts"
+compatibility_date = "2024-01-29"
+account_id = "<ACCOUNT ID>"
+routes = [{ pattern = "staging.example.com/*", zone_name = "example.com" }]
+
+[env.production]
+name = "static-ab-worker-production"
+routes = [{ pattern = "example.com/*", zone_name = "example.com" }]
